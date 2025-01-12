@@ -20,21 +20,21 @@ const Contact = () => {
                 <Phone className="w-6 h-6 text-hotel-gold" />
                 <div>
                   <h3 className="font-semibold mb-1">Телефон</h3>
-                  <p className="text-gray-600">+7 (999) 123-45-67</p>
+                  <p className="text-gray-600">+7 (727) 355-55-55</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <Mail className="w-6 h-6 text-hotel-gold" />
                 <div>
                   <h3 className="font-semibold mb-1">Email</h3>
-                  <p className="text-gray-600">info@disarixos.com</p>
+                  <p className="text-gray-600">info@disarixos.kz</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <MapPin className="w-6 h-6 text-hotel-gold" />
                 <div>
                   <h3 className="font-semibold mb-1">Адрес</h3>
-                  <p className="text-gray-600">ул. Приморская, 123, Сочи, Россия</p>
+                  <p className="text-gray-600">пр. Достык 240, Алматы, Казахстан</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -93,7 +93,7 @@ const Contact = () => {
 
         <div className="rounded-lg overflow-hidden h-[400px]">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2819.0235594822897!2d39.7289663!3d43.5850067!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDM1JzA2LjAiTiAzOcKwNDMnNDQuMyJF!5e0!3m2!1sru!2sru!4v1645549240619!5m2!1sru!2sru"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2906.8894831829643!2d76.95566687573567!3d43.23423337913861!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38836eb3e9c2b1c9%3A0x7b7d14aec270c056!2z0L_RgNC-0YHQv9C10LrRgiDQlNC-0YHRgtGL0LogMjQwLCDQkNC70LzQsNGC0YsgMDUwMDIw!5e0!3m2!1sru!2skz!4v1709667547039!5m2!1sru!2skz"
             width="100%"
             height="100%"
             style={{ border: 0 }}

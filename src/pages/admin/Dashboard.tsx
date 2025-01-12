@@ -1,34 +1,84 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { Users, Hotel, Calendar, Star } from "lucide-react";
 
-const stats = [
-  {
-    title: "Всего номеров",
-    value: "50",
-    icon: <Hotel className="w-6 h-6" />,
-    change: "+2 с прошлого месяца",
-  },
-  {
-    title: "Активные бронирования",
-    value: "28",
-    icon: <Calendar className="w-6 h-6" />,
-    change: "+12% с прошлой недели",
-  },
-  {
-    title: "Гостей сегодня",
-    value: "42",
-    icon: <Users className="w-6 h-6" />,
-    change: "+8% с вчера",
-  },
-  {
-    title: "Средний рейтинг",
-    value: "4.8",
-    icon: <Star className="w-6 h-6" />,
-    change: "+0.2 с прошлого месяца",
-  },
-];
+interface Room {
+  id: number;
+  number: string;
+  type: string;
+  occupant?: {
+    name: string;
+    email: string;
+  };
+}
 
 const AdminDashboard = () => {
+  const [rooms, setRooms] = useState<Room[]>([
+    {
+      id: 1,
+      number: "101",
+      type: "Люкс",
+      occupant: {
+        name: "Айгуль Нурланова",
+        email: "aigul@example.com",
+      },
+    },
+    {
+      id: 2,
+      number: "102",
+      type: "Стандарт",
+      occupant: {
+        name: "Арман Сатыбалды",
+        email: "arman@example.com",
+      },
+    },
+  ]);
+
+  const { toast } = useToast();
+  const stats = [
+    {
+      title: "Всего номеров",
+      value: "50",
+      icon: <Hotel className="w-6 h-6" />,
+      change: "+2 с прошлого месяца",
+    },
+    {
+      title: "Активные бронирования",
+      value: "28",
+      icon: <Calendar className="w-6 h-6" />,
+      change: "+12% с прошлой недели",
+    },
+    {
+      title: "Гостей сегодня",
+      value: "42",
+      icon: <Users className="w-6 h-6" />,
+      change: "+8% с вчера",
+    },
+    {
+      title: "Средний рейтинг",
+      value: "4.8",
+      icon: <Star className="w-6 h-6" />,
+      change: "+0.2 с прошлого месяца",
+    },
+  ];
+
+  const handleEviction = (room: Room) => {
+    if (room.occupant) {
+      // Here you would typically send an email notification
+      toast({
+        title: "Уведомление отправлено",
+        description: `Гость ${room.occupant.name} уведомлен о выселении из номера ${room.number}`,
+      });
+
+      // Update rooms state
+      setRooms(rooms.map(r => 
+        r.id === room.id ? { ...r, occupant: undefined } : r
+      ));
+    }
+  };
+
   return (
     <div className="section-padding">
       <div className="hotel-container">
@@ -41,7 +91,9 @@ const AdminDashboard = () => {
           {stats.map((stat) => (
             <Card key={stat.title}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">{stat.title}</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-500">
+                  {stat.title}
+                </CardTitle>
                 <div className="text-hotel-gold">{stat.icon}</div>
               </CardHeader>
               <CardContent>
@@ -52,51 +104,38 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Последние бронирования</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[1, 2, 3].map((booking) => (
-                  <div key={booking} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium">Бронирование #{booking}</p>
-                      <p className="text-sm text-gray-600">2 гостя • 3 ночи</p>
-                    </div>
-                    <span className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">
-                      Подтверждено
-                    </span>
+        <Card>
+          <CardHeader>
+            <CardTitle>Управление номерами</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {rooms.map((room) => (
+                <div
+                  key={room.id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium">Номер {room.number} - {room.type}</p>
+                    {room.occupant && (
+                      <p className="text-sm text-gray-600">
+                        Проживает: {room.occupant.name}
+                      </p>
+                    )}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Последние отзывы</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[1, 2, 3].map((review) => (
-                  <div key={review} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium">Гость #{review}</p>
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-hotel-gold text-hotel-gold" />
-                        ))}
-                      </div>
-                    </div>
-                    <span className="text-sm text-gray-600">2 часа назад</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                  {room.occupant && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleEviction(room)}
+                    >
+                      Выселить
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

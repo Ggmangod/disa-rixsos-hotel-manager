@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { login } from "@/services/api";
 import {
   Card,
   CardContent,
@@ -15,37 +16,37 @@ import {
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "admin@disarixos.kz" && password === "admin") {
-      localStorage.setItem("user", JSON.stringify({ role: "admin", email }));
+    setIsLoading(true);
+
+    try {
+      const response = await login(email, password);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      
       toast({
         title: "Успешный вход",
         description: "Добро пожаловать в систему",
       });
-      navigate("/admin");
-    } else {
-      // Check if user exists in localStorage
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
-      const user = users.find((u: any) => u.email === email && u.password === password);
       
-      if (user) {
-        localStorage.setItem("user", JSON.stringify({ role: "user", email, name: user.name }));
-        toast({
-          title: "Успешный вход",
-          description: "Добро пожаловать в Disa Rixos",
-        });
-        navigate("/");
+      if (response.data.user.role === 'admin') {
+        navigate("/admin");
       } else {
-        toast({
-          variant: "destructive",
-          title: "Ошибка",
-          description: "Неверные учетные данные",
-        });
+        navigate("/");
       }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Неверные учетные данные",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -68,6 +69,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -78,10 +80,11 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Войти
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Вход..." : "Войти"}
             </Button>
           </form>
         </CardContent>

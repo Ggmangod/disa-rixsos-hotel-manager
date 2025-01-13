@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 
 const Register = () => {
@@ -20,15 +21,32 @@ const Register = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically make an API call to register
-    localStorage.setItem(
-      "user",
-      JSON.stringify({ role: "user", email, name })
-    );
+    
+    // Get existing users or initialize empty array
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    
+    // Check if user already exists
+    if (users.some((user: any) => user.email === email)) {
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Пользователь с таким email уже существует",
+      });
+      return;
+    }
+
+    // Add new user
+    users.push({ email, password, name });
+    localStorage.setItem("users", JSON.stringify(users));
+    
+    // Set current user
+    localStorage.setItem("user", JSON.stringify({ role: "user", email, name }));
+    
     toast({
       title: "Регистрация успешна",
       description: "Добро пожаловать в Disa Rixos",
     });
+    
     navigate("/");
   };
 
@@ -78,6 +96,14 @@ const Register = () => {
             </Button>
           </form>
         </CardContent>
+        <CardFooter className="flex justify-center">
+          <p className="text-sm text-gray-600">
+            Уже есть аккаунт?{" "}
+            <Link to="/login" className="text-hotel-gold hover:underline">
+              Войти
+            </Link>
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );

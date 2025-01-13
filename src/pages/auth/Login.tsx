@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 
 const Login = () => {
@@ -19,7 +20,6 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically make an API call to authenticate
     if (email === "admin@disarixos.kz" && password === "admin") {
       localStorage.setItem("user", JSON.stringify({ role: "admin", email }));
       toast({
@@ -28,11 +28,24 @@ const Login = () => {
       });
       navigate("/admin");
     } else {
-      toast({
-        variant: "destructive",
-        title: "Ошибка",
-        description: "Неверные учетные данные",
-      });
+      // Check if user exists in localStorage
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const user = users.find((u: any) => u.email === email && u.password === password);
+      
+      if (user) {
+        localStorage.setItem("user", JSON.stringify({ role: "user", email, name: user.name }));
+        toast({
+          title: "Успешный вход",
+          description: "Добро пожаловать в Disa Rixos",
+        });
+        navigate("/");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Ошибка",
+          description: "Неверные учетные данные",
+        });
+      }
     }
   };
 
@@ -72,6 +85,14 @@ const Login = () => {
             </Button>
           </form>
         </CardContent>
+        <CardFooter className="flex justify-center">
+          <p className="text-sm text-gray-600">
+            Нет аккаунта?{" "}
+            <Link to="/register" className="text-hotel-gold hover:underline">
+              Зарегистрироваться
+            </Link>
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -44,6 +44,13 @@ const Navigation = () => {
             ))}
             <Button
               asChild
+              variant="outline"
+              className="border-hotel-gold text-hotel-gold hover:bg-hotel-gold hover:text-white"
+            >
+              <Link to="/register">Регистрация</Link>
+            </Button>
+            <Button
+              asChild
               className="bg-hotel-gold hover:bg-hotel-brown text-white"
             >
               <Link to="/booking">Book Now</Link>
@@ -81,6 +88,15 @@ const Navigation = () => {
                   {item.name}
                 </Link>
               ))}
+              <Button
+                asChild
+                variant="outline"
+                className="w-full border-hotel-gold text-hotel-gold hover:bg-hotel-gold hover:text-white"
+              >
+                <Link to="/register" onClick={() => setIsOpen(false)}>
+                  Регистрация
+                </Link>
+              </Button>
               <Button
                 asChild
                 className="w-full bg-hotel-gold hover:bg-hotel-brown text-white"

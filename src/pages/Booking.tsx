@@ -14,6 +14,17 @@ const Booking = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    
+    if (!user.email) {
+      toast({
+        title: "Ошибка",
+        description: "Пожалуйста, войдите в систему для бронирования",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!startDate || !endDate) {
       toast({
         title: "Ошибка",
@@ -22,6 +33,22 @@ const Booking = () => {
       });
       return;
     }
+
+    // Save booking to localStorage
+    const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+    const newBooking = {
+      id: Date.now(),
+      userEmail: user.email,
+      userName: user.name,
+      roomType,
+      guests,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      status: "active"
+    };
+    
+    bookings.push(newBooking);
+    localStorage.setItem("bookings", JSON.stringify(bookings));
     
     toast({
       title: "Бронирование отправлено",

@@ -3,40 +3,53 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Users, Hotel, Calendar, Star } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-interface Room {
+interface Booking {
   id: number;
-  number: string;
-  type: string;
-  occupant?: {
-    name: string;
-    email: string;
-  };
+  userEmail: string;
+  userName: string;
+  roomType: string;
+  guests: string;
+  startDate: string;
+  endDate: string;
+  status: string;
 }
 
 const AdminDashboard = () => {
-  const [rooms, setRooms] = useState<Room[]>([
-    {
-      id: 1,
-      number: "101",
-      type: "Люкс",
-      occupant: {
-        name: "Айгуль Нурланова",
-        email: "aigul@example.com",
-      },
-    },
-    {
-      id: 2,
-      number: "102",
-      type: "Стандарт",
-      occupant: {
-        name: "Арман Сатыбалды",
-        email: "arman@example.com",
-      },
-    },
-  ]);
-
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const loadBookings = () => {
+      const savedBookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+      setBookings(savedBookings);
+    };
+
+    loadBookings();
+    // Обновляем список каждые 30 секунд
+    const interval = setInterval(loadBookings, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleCancelBooking = (booking: Booking) => {
+    const updatedBookings = bookings.filter(b => b.id !== booking.id);
+    localStorage.setItem("bookings", JSON.stringify(updatedBookings));
+    setBookings(updatedBookings);
+
+    toast({
+      title: "Бронирование отменено",
+      description: `Гость ${booking.userName} уведомлен об отмене бронирования`,
+    });
+  };
+
   const stats = [
     {
       title: "Всего номеров",
@@ -46,15 +59,15 @@ const AdminDashboard = () => {
     },
     {
       title: "Активные бронирования",
-      value: "28",
+      value: bookings.length.toString(),
       icon: <Calendar className="w-6 h-6" />,
-      change: "+12% с прошлой недели",
+      change: "Обновлено сейчас",
     },
     {
       title: "Гостей сегодня",
-      value: "42",
+      value: bookings.reduce((acc, curr) => acc + parseInt(curr.guests), 0).toString(),
       icon: <Users className="w-6 h-6" />,
-      change: "+8% с вчера",
+      change: "Обновлено сейчас",
     },
     {
       title: "Средний рейтинг",
@@ -63,21 +76,6 @@ const AdminDashboard = () => {
       change: "+0.2 с прошлого месяца",
     },
   ];
-
-  const handleEviction = (room: Room) => {
-    if (room.occupant) {
-      // Here you would typically send an email notification
-      toast({
-        title: "Уведомление отправлено",
-        description: `Гость ${room.occupant.name} уведомлен о выселении из номера ${room.number}`,
-      });
-
-      // Update rooms state
-      setRooms(rooms.map(r => 
-        r.id === room.id ? { ...r, occupant: undefined } : r
-      ));
-    }
-  };
 
   return (
     <div className="section-padding">
@@ -106,34 +104,48 @@ const AdminDashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Управление номерами</CardTitle>
+            <CardTitle>Управление бронированиями</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {rooms.map((room) => (
-                <div
-                  key={room.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium">Номер {room.number} - {room.type}</p>
-                    {room.occupant && (
-                      <p className="text-sm text-gray-600">
-                        Проживает: {room.occupant.name}
-                      </p>
-                    )}
-                  </div>
-                  {room.occupant && (
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleEviction(room)}
-                    >
-                      Выселить
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Гость</TableHead>
+                  <TableHead>Тип номера</TableHead>
+                  <TableHead>Даты</TableHead>
+                  <TableHead>Кол-во гостей</TableHead>
+                  <TableHead>Действия</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {bookings.map((booking) => (
+                  <TableRow key={booking.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{booking.userName}</p>
+                        <p className="text-sm text-gray-500">{booking.userEmail}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>{booking.roomType}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p>С: {new Date(booking.startDate).toLocaleDateString()}</p>
+                        <p>До: {new Date(booking.endDate).toLocaleDateString()}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>{booking.guests}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleCancelBooking(booking)}
+                      >
+                        Отменить
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>

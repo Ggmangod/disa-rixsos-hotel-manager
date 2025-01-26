@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { login } from "@/services/api";
 import {
   Card,
   CardContent,
@@ -24,30 +23,32 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const response = await login(email, password);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+    // Hardcoded admin credentials for testing
+    if (email === "admin@disarixos.kz" && password === "admin123") {
+      const mockUser = {
+        id: 1,
+        email: "admin@disarixos.kz",
+        name: "Admin",
+        role: "admin"
+      };
+      
+      localStorage.setItem("user", JSON.stringify(mockUser));
       
       toast({
         title: "Успешный вход",
         description: "Добро пожаловать в систему",
       });
       
-      if (response.data.user.role === 'admin') {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
-    } catch (error) {
+      navigate("/admin");
+    } else {
       toast({
         variant: "destructive",
         title: "Ошибка",
         description: "Неверные учетные данные",
       });
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
   return (
